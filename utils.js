@@ -19,3 +19,16 @@ function cloneMatrix(matrix){
 	}
 	return clonedMatrix;
 }
+
+function getOppositeDirection(direction){
+	switch(direction){
+		case Direction.EAST:
+			return Direction.WEST;
+		case Direction.NORTH:
+			return Direction.SOUTH;
+		case Direction.WEST:
+			return Direction.EAST;
+		case Direction.SOUTH:
+			return Direction.NORTH;
+	}
+}
