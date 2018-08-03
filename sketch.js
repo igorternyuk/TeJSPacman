@@ -25,11 +25,10 @@ function preload(){
 }
 
 function setup() {
-	frameRate(20);
+	frameRate(16);
     createCanvas(canvasWidth, canvasHeight);
     grid = new Grid();
-    console.log("pacmanX = " + grid.pacmanRespawnX);
-    pacman = new Pacman(grid.pacmanRespawnX, grid.pacmanRespawnY, TILE_SIZE / 8, Direction.EAST);
+    pacman = new Pacman(grid.pacmanRespawnX, grid.pacmanRespawnY, TILE_SIZE / 4, Direction.EAST);
 }
 
 function keyPressed(){

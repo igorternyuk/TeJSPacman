@@ -32,3 +32,11 @@ function getOppositeDirection(direction){
 			return Direction.NORTH;
 	}
 }
+
+function isDirectionVertical(direction){
+	return direction === Direction.NORTH || direction === Direction.SOUTH;
+}
+
+function isDirectionHorizontal(direction){
+	return direction === Direction.EAST || direction === Direction.WEST;	
+}

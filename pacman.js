@@ -1,7 +1,6 @@
 class Pacman extends Entity{
 	constructor(x, y, speed, direction){
 		super(x, y, speed, direction);
-		this.isMoving = false;
 		this.currentFrame = 0;
 		this.frameCount = 12;
 	}
@@ -10,8 +9,7 @@ class Pacman extends Entity{
 		if(this.direction === direction){
 			return true;
 		}
-		if(getOppositeDirection(this.direction) === direction
-			|| ((this.left() % TILE_SIZE === 0) && (this.top() % TILE_SIZE === 0))){
+		if(getOppositeDirection(this.direction) === direction || this.isOnTurnPoint()){
 			this.direction = direction;
 			return true;
 		}
@@ -30,14 +28,21 @@ class Pacman extends Entity{
 		if(this.currentFrame >= this.frameCount){
 			this.currentFrame = 0;
 		}
-		console.log("this.currentFrame = " + this.currentFrame);
 	}
 
 	update(){
 		if(this.isMoving){
 			super.update();
+			if(grid.handleCollisions(this)){
+				let collidedTiles = grid.collidedTiles;
+				collidedTiles.forEach(tile => {
+					if(tile.type === TileType.FRUIT){
+						console.log("Collision with fruit!");
+						grid.setTileType(tile.row, tile.col, TileType.EMPTY);
+					}
+				});
+			}
 			this.updateFrames();
-			console.log("pacX = " + this.x);
 		}
 	}
 	
