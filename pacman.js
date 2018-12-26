@@ -1,19 +1,39 @@
 class Pacman extends Entity{
-	constructor(x, y, speed, direction){
-		super(x, y, speed, direction);
+	constructor(x, y, direction){
+		super(x, y, 0.25, direction);
 		this.currentFrame = 0;
 		this.frameCount = 12;
+		this.score = 0;
+		this.lifes = 5;
+		this.energized = false;
+		this.energizeTimer = 0;
+		this.energizerActionTime = 9;
+		console.log(" px = " + this.x + " py = " + this.y);
+	}
+
+	eatEnergizer(){
+		this.accelerate();
+	}
+
+	eatFruit(){
+		++this.score;
+		this.decelerate();
+	}
+
+	setRegularSpeed(){
+		this.moveTime = 0.25;
+	}
+
+	accelerate(){
+		this.moveTime = 0.125;
+	}
+
+	decelerate(){
+		this.moveTime = 0.5;
 	}
 
 	setDirection(direction){
-		if(this.direction === direction){
-			return true;
-		}
-		if(getOppositeDirection(this.direction) === direction || this.isOnTurnPoint()){
-			this.direction = direction;
-			return true;
-		}
-		return false;
+		this.direction = direction;
 	}
 
 	setMoving(moving){
@@ -30,18 +50,10 @@ class Pacman extends Entity{
 		}
 	}
 
-	update(){
+	update(frameTime){
+		//console.log("Pacman update");
 		if(this.isMoving){
-			super.update();
-			if(grid.handleCollisions(this)){
-				let collidedTiles = grid.collidedTiles;
-				collidedTiles.forEach(tile => {
-					if(tile.type === TileType.FRUIT){
-						console.log("Collision with fruit!");
-						grid.setTileType(tile.row, tile.col, TileType.EMPTY);
-					}
-				});
-			}
+			super.update(frameTime);
 			this.updateFrames();
 		}
 	}
@@ -49,7 +61,7 @@ class Pacman extends Entity{
 
 	render(){
 		push();
-		translate(this.x, this.y);
+		translate(this.x * TILE_SIZE + TILE_SIZE / 2, this.y * TILE_SIZE + TILE_SIZE / 2);
 		rotate(this.direction.angle);
 		imageMode(CENTER);
 		image(imgPacman, 0, 0, TILE_SIZE, TILE_SIZE, this.currentFrame * TILE_SIZE, 0, TILE_SIZE, TILE_SIZE);

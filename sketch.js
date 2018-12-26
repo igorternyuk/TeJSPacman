@@ -11,37 +11,44 @@ const Direction = Object.freeze({ EAST: { dx: +1, dy:0, angle: 0 },
                 });
 
 
-var imgRock;
+var imgBrick, imgPowerUp, imgFruit, imgPacman;
 var grid;
 var pacmanRespawnX, pacmanRespawnY;
 var pacman;
 
 function preload(){
-	imgBrick = loadImage("resources/img/brick.bmp");
-	imgPowerUp = loadImage("resources/img/grape.png");
-	imgFruit = loadImage("resources/img/food.png");
-	imgPacman = loadImage("resources/img/Pacman2.png");
+	imgBrick = loadImage("res/img/brick.bmp");
+	imgPowerUp = loadImage("res/img/grape.png");
+	imgFruit = loadImage("res/img/food.png");	
+	imgPacman = loadImage("res/img/Pacman2.png");
 	TileType = Object.freeze({ EMPTY: {img:null}, BRICK: {img: imgBrick}, FRUIT: {img: imgFruit}, POWER_UP: {img: imgPowerUp} });
+	console.log("All resources was successfully loaded");
 }
 
 function setup() {
+	console.log("Setup started");
 	frameRate(16);
     createCanvas(canvasWidth, canvasHeight);
     grid = new Grid();
+    console.log("Setup finished");
     pacman = new Pacman(grid.pacmanRespawnX, grid.pacmanRespawnY, TILE_SIZE / 4, Direction.EAST);
 }
 
 function keyPressed(){
 	//console.log("Key pressed");
 	if(keyCode === RIGHT_ARROW){
-		pacman.setMoving(pacman.setDirection(Direction.EAST));	
+		pacman.setDirection(Direction.EAST)
+		pacman.setMoving(true);	
 		//console.log("Pacman moving to the right");
 	} else if(keyCode === LEFT_ARROW){
-		pacman.setMoving(pacman.setDirection(Direction.WEST));
+		pacman.setDirection(Direction.WEST)
+		pacman.setMoving(true);
 	} else if(keyCode == UP_ARROW){
-		pacman.setMoving(pacman.setDirection(Direction.NORTH));
+		pacman.setDirection(Direction.NORTH)
+		pacman.setMoving(true);
 	} else if(keyCode == DOWN_ARROW){
-		pacman.setMoving(pacman.setDirection(Direction.SOUTH));
+		pacman.setDirection(Direction.SOUTH)
+		pacman.setMoving(true);
 	} else {
 		pacman.setMoving(false);
 	}
@@ -66,12 +73,37 @@ function keyReleased(){
 
 //main loop
 function draw() {
-	pacman.update();
-
+	pacman.update(0.0625);
 	background(0);
 	grid.render();
 	pacman.render();
 }
 
 
+/*
+var lastPrint;
+var i = 0;
 
+function setup() {
+  createCanvas(windowWidth, windowHeight); //set canvas to window width and window height
+  background("#dc3787"); //background of pink
+  lastPrint = millis() - 3000;
+}
+
+//print i every 3 seconds from 0 - 10
+
+function draw() {
+  var timeElapsed = millis() - lastPrint;
+  //console.log(timeElapsed);
+
+  if (timeElapsed > 3000) {
+    i++;
+    console.log(i);
+    lastPrint = millis();
+  }
+}
+
+function windowResized() { //P5 window resize function
+  resizeCanvas(windowWidth, windowHeight);
+}
+*/

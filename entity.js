@@ -1,40 +1,47 @@
 class Entity{
-	constructor(x, y, speed, direction){
+	constructor(x, y, moveTime, direction){
 		this.x = x;
 		this.y = y;
-		this.speed = speed;
+		this.moveTime = moveTime;
 		this.direction = direction;
-		this.radius = TILE_SIZE / 2;
 		this.isMoving = false;
+		this.moveTimer = 0;
+	}
+
+	setPosition(x, y){
+		this.x = x;
+		this.y = y;
 	}
 
 	setMoving(moving){
 		this.isMoving = moving;	
 	}
 
-	left(){
-		return this.x - this.radius;
+	fixRow(row){
+		if(row < 0) return grid.rows - 1;
+		if(row > grid.rows - 1) return 0;
 	}
 
-	top(){
-		return this.y - this.radius;
+	fixCol(col){
+		if(col < 0) return grid.cols - 1;
+		if(col > grid.cols - 1) return 0;
 	}
 
-	right(){
-		return this.x + this.radius;
-	}
-
-	bottom(){
-		return this.y + this.radius;
-	}
-
-	isOnTurnPoint(){
-		return (this.left() % TILE_SIZE === 0) && (this.top() % TILE_SIZE === 0);
-	}
-
-	update(){
-		this.x += this.speed * this.direction.dx;
-		this.y += this.speed * this.direction.dy;
+	update(frameTime){
+		this.moveTimer += frameTime;
+		if(this.moveTimer >= this.moveTime)
+		{
+			let newX = /*this.fixCol(*/this.x + this.direction.dx;
+			let newY = /*this.fixRow(*/this.y + this.direction.dy;
+			if(grid.isTilePassable(newY, newX)){
+				this.x = newX;
+				this.y = newY;
+			} else {
+				console.log("We've hit the wall");
+			}
+			
+			this.moveTimer = 0;	
+		}		
 	}
 
 	render(){
