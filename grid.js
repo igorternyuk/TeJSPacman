@@ -6,6 +6,7 @@ class Grid{
 		this.pathfindingGrid = createMatrix(this.rows, this.cols);
 		this.pacmanRespawnX = 0;
 		this.pacmanY = 0;
+		this.fruits = 0;
 		for(let row = 0; row < this.rows; ++row){
 			for(let col = 0; col < this.cols; ++col){
 				this.grid[row][col] = platform[row][col];
@@ -20,6 +21,7 @@ class Grid{
 				} else if(platform[row][col] === ' ') {
 					this.grid[row][col] = new Tile(TileType.FRUIT, row, col);
 					this.pathfindingGrid[row][col] = new Spot(col, row, false);
+					++this.fruits;
 				} else {
 					this.grid[row][col] = new Tile(TileType.EMPTY, row, col);
 					this.pathfindingGrid[row][col] = new Spot(col, row, false);
@@ -29,12 +31,17 @@ class Grid{
 					console.log("Pacman position was found row " + row + " col = " + col);
 					this.pacmanRespawnX = col;
 					this.pacmanRespawnY = row;
-				}
+				} 
 			}
 		}
 	}
 
+	getTileType(row, col){
+		return this.grid[row][col].type;
+	}
+
 	isTilePassable(row, col){
+		console.log("row " + row + " col = " + col);
 		return this.grid[row][col].type !== TileType.BRICK;
 	}
 
@@ -51,6 +58,9 @@ class Grid{
 	}
 
 	setTileType(row, col, type){
+		if(this.grid[row][col].type === TileType.FRUIT && type !== TileType.FRUIT){
+			--this.fruits;
+		}
 		this.grid[row][col].type = type;
 	}
 

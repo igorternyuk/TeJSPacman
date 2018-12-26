@@ -4,7 +4,7 @@ class Pacman extends Entity{
 		this.currentFrame = 0;
 		this.frameCount = 12;
 		this.score = 0;
-		this.lifes = 5;
+		this.lives = 5;
 		this.energized = false;
 		this.energizeTimer = 0;
 		this.energizerActionTime = 9;
@@ -13,11 +13,16 @@ class Pacman extends Entity{
 
 	eatEnergizer(){
 		this.accelerate();
+		this.score += 50;
+		this.energizeTimer = 0;
+		this.energized = true;
 	}
 
 	eatFruit(){
-		++this.score;
-		this.decelerate();
+		this.score += 10;
+		if(!this.energized){
+			this.decelerate();
+		}
 	}
 
 	setRegularSpeed(){
@@ -55,9 +60,32 @@ class Pacman extends Entity{
 		if(this.isMoving){
 			super.update(frameTime);
 			this.updateFrames();
+			this.energizeTimer += frameTime;
+			if(this.energizeTimer >= this.energizerActionTime){
+				this.energizeTimer = 0;
+				this.energized = false;
+				this.setRegularSpeed();
+			}
+			this.checkCollisions();
 		}
 	}
 	
+	checkCollisions(){
+		if(grid.getTileType(this.y, this.x) === TileType.EMPTY){
+			if(!this.energized){
+				this.setRegularSpeed();	
+			}			
+		} 
+		else if(grid.getTileType(this.y, this.x) === TileType.FRUIT){
+			this.eatFruit();
+			console.log("Pacman has eaten the fruit")
+			grid.setTileType(this.y, this.x, TileType.EMPTY);
+		}
+		else if(grid.getTileType(this.y, this.x) === TileType.POWER_UP){
+			this.eatEnergizer();
+			grid.setTileType(this.y, this.x, TileType.EMPTY);
+		}
+	}
 
 	render(){
 		push();

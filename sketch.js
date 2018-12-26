@@ -1,6 +1,6 @@
 const TILE_SIZE = 32;
 var canvasWidth = 25 * TILE_SIZE;
-var canvasHeight = 21 * TILE_SIZE;
+var canvasHeight = 21 * TILE_SIZE + 2 * TILE_SIZE;
 
 const GameState = Object.freeze({ PLAY: 0, PAUSE: 1, PLAYER_WON: 2, PLAYER_LOST: 3 });
 
@@ -15,6 +15,7 @@ var imgBrick, imgPowerUp, imgFruit, imgPacman;
 var grid;
 var pacmanRespawnX, pacmanRespawnY;
 var pacman;
+var fruitsTotal;
 
 function preload(){
 	imgBrick = loadImage("res/img/brick.bmp");
@@ -30,8 +31,9 @@ function setup() {
 	frameRate(16);
     createCanvas(canvasWidth, canvasHeight);
     grid = new Grid();
-    console.log("Setup finished");
     pacman = new Pacman(grid.pacmanRespawnX, grid.pacmanRespawnY, TILE_SIZE / 4, Direction.EAST);
+    fruitsTotal = grid.fruits;
+    console.log("Setup finished");
 }
 
 function keyPressed(){
@@ -77,6 +79,14 @@ function draw() {
 	background(0);
 	grid.render();
 	pacman.render();
+	renderScore();
+}
+
+function renderScore(){
+	textSize(30);
+	fill(255,35,0);
+	let score = pacman.score;
+	text("Pacman score: " + score + " lives: " + pacman.lives, TILE_SIZE, 22 * TILE_SIZE);
 }
 
 

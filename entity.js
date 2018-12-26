@@ -20,19 +20,22 @@ class Entity{
 	fixRow(row){
 		if(row < 0) return grid.rows - 1;
 		if(row > grid.rows - 1) return 0;
+		return row;
 	}
 
 	fixCol(col){
 		if(col < 0) return grid.cols - 1;
 		if(col > grid.cols - 1) return 0;
+		return col;
 	}
 
 	update(frameTime){
 		this.moveTimer += frameTime;
 		if(this.moveTimer >= this.moveTime)
 		{
-			let newX = /*this.fixCol(*/this.x + this.direction.dx;
-			let newY = /*this.fixRow(*/this.y + this.direction.dy;
+			let newX = this.fixCol(this.x + this.direction.dx);
+			let newY = this.fixRow(this.y + this.direction.dy);
+
 			if(grid.isTilePassable(newY, newX)){
 				this.x = newX;
 				this.y = newY;
