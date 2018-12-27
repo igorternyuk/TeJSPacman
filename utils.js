@@ -8,7 +8,7 @@ function createMatrix(rows, cols){
 }
 
 function cloneMatrix(matrix){
-	if(matrix.size() <= 0){
+	if(matrix.length <= 0){
 		return [];
 	}
 	clonedMatrix = createMatrix(matrix.length, matrix[0].length);

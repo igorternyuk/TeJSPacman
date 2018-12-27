@@ -1,6 +1,8 @@
 const TILE_SIZE = 32;
-var canvasWidth = 25 * TILE_SIZE;
-var canvasHeight = 21 * TILE_SIZE + 2 * TILE_SIZE;
+const FIELD_WIDTH = 52;
+const FIELD_HEIGHT = 21;
+var canvasWidth = FIELD_WIDTH * TILE_SIZE;
+var canvasHeight = FIELD_HEIGHT * TILE_SIZE + 2 * TILE_SIZE;
 
 const GameState = Object.freeze({ PLAY: 0, PAUSE: 1, PLAYER_WON: 2, PLAYER_LOST: 3 });
 
@@ -16,6 +18,9 @@ var grid;
 var pacmanRespawnX, pacmanRespawnY;
 var pacman;
 var fruitsTotal;
+var pathfinder;
+var optPath;
+var startX, startY, endX, endY;
 
 function preload(){
 	imgBrick = loadImage("res/img/brick.bmp");
@@ -33,6 +38,12 @@ function setup() {
     grid = new Grid();
     pacman = new Pacman(grid.pacmanRespawnX, grid.pacmanRespawnY, TILE_SIZE / 4, Direction.EAST);
     fruitsTotal = grid.fruits;
+    pathfinder = new PathFinder();
+    startX = 1;
+    startY = 1;
+    endX = 23;
+    endY = 19;
+    optPath = pathfinder.calc(startX, startY, endX, endY);
     console.log("Setup finished");
 }
 
@@ -71,8 +82,30 @@ function keyReleased(){
 		pacman.setDirection(Direction.SOUTH);
 		pacman.setMoving(false);
 	}
+
+	/*if(key === ' ' ){
+		optPath = pathfinder.calc(1, 1, 11, 19);
+	}*/
 }
 
+function mouseReleased(){
+	//console.log("mouseX = ", mouseX, " mouseY = ", mouseY);
+
+	let mx = floor(mouseX / TILE_SIZE);
+	let my = floor(mouseY / TILE_SIZE);
+	console.log("mouseX = " + mx + " mouseY = " + my);
+	if(mouseButton === LEFT){
+		startX = mx;
+    	startY = my;
+    	console.log("Left button released");
+	} else if(mouseButton === CENTER){
+		endX = mx;
+    	endY = my;
+    	console.log("Middle button released");
+	}
+	pathfinder.reset();
+    optPath = pathfinder.calc(startX, startY, endX, endY);
+}
 //main loop
 function draw() {
 	pacman.update(0.0625);
@@ -80,6 +113,16 @@ function draw() {
 	grid.render();
 	pacman.render();
 	renderScore();
+	optPath.forEach(spot => spot.render());
+	for(i = optPath.length - 1; i > 0; --i){
+		strokeWeight(2);
+		stroke(0,255,0);
+		line(optPath[i].x * TILE_SIZE + TILE_SIZE / 2,
+		 	 optPath[i].y * TILE_SIZE + TILE_SIZE / 2,
+		     optPath[i - 1].x * TILE_SIZE + TILE_SIZE / 2,
+		     optPath[i - 1].y * TILE_SIZE + TILE_SIZE / 2);
+		strokeWeight(1);
+	}
 }
 
 function renderScore(){
@@ -90,6 +133,9 @@ function renderScore(){
 }
 
 
+function calcPath(start, end){
+	
+}
 /*
 var lastPrint;
 var i = 0;
