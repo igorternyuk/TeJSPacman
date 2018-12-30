@@ -30,7 +30,6 @@ class Grid{
 				}
 
 				if (platform[row][col] === 'P') {
-					console.log("Pacman position was found row " + row + " col = " + col);
 					this.pacmanRespawnX = col;
 					this.pacmanRespawnY = row;
 				}

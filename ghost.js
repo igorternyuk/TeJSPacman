@@ -17,6 +17,15 @@ class Ghost extends Entity{
 		this.modeChangePeriod = 20;
 	}
 
+	getEaten(){
+		this.mode = GhostMode.GOING_HOME;
+		this.isEaten = true;
+		this.moveTimer = 0;
+		this.modeTimer = 0;
+		this.shortestPath = [];
+		this.currPosOnPath = 0;
+	}
+
 	scare(){
 		this.mode = GhostMode.SCARED;
 		let rd = floor(random(AllDirections.length));
@@ -28,12 +37,11 @@ class Ghost extends Entity{
 		let initPos = grid.ghostPositions.get(this.type);
 		this.setPosition(initPos.x, initPos.y);
 		this.mode = GhostMode.IN_BOX;
-		//this.isEaten = false;
+		this.isEaten = true;
 		this.moveTimer = 0;
 		this.modeTimer = 0;
 		this.shortestPath = [];
 		this.currPosOnPath = 0;
-		console.log("sourceX = " + this.sourceX / 32 + " sourceY = " + this.sourceY / 32);
 	}
 
 	isScared(){
@@ -52,9 +60,15 @@ class Ghost extends Entity{
 			this.sourceX = this.type * 2 * TILE_SIZE + this.currFrame * TILE_SIZE;
 			this.sourceY = this.direction.index * TILE_SIZE;
 
+
 			if(this.isScared()){
 				this.sourceX = 6 * 2 * TILE_SIZE + this.currFrame * TILE_SIZE;
-				this.sourceY = this.isEaten ? 2 * TILE_SIZE : 0;
+				this.sourceY = 0;
+			}
+
+			if(this.isEaten){
+				this.sourceX = 6 * 2 * TILE_SIZE + this.currFrame * TILE_SIZE;
+				this.sourceY = 2 * TILE_SIZE;
 			}
 		}
 
@@ -123,7 +137,32 @@ class Ghost extends Entity{
 				}
 				this.moveTimer = 0; 
 			}
+			
+		} else if(this.mode === GhostMode.GOING_HOME){			
 
+			if(this.moveTimer >= this.moveTime){
+				if(this.shortestPath.length === 0){
+					this.target = grid.ghostLeavingPoints.get(this.type);
+					this.shortestPath =
+					 pathfinder.calcShortestPath(this.x, this.y, this.target.x, this.target.y);
+					 this.currPosOnPath = 0;
+					 console.log("Eyes's path calculated. Its size = " + this.shortestPath.length);
+				}
+				
+				if(this.x === this.target.x && this.y === this.target.y){
+					console.log("Going back into the box");
+					this.goToBox();
+				} else {
+					let nextPos = this.shortestPath[this.currPosOnPath];
+					this.setPosition(nextPos.x, nextPos.y);
+					++this.currPosOnPath;
+					if(this.currPosOnPath >= this.shortestPath.length){
+						this.shortestPath = [];
+						this.currPosOnPath = 0;
+					}
+				}
+				this.moveTimer = 0; 
+			}
 			
 		} else if(this.mode === GhostMode.CHASE){
 			if(this.moveTimer >= this.moveTime){
@@ -156,10 +195,6 @@ class Ghost extends Entity{
 	render(){
 		image(imgGhosts, this.x * TILE_SIZE, this.y * TILE_SIZE, TILE_SIZE, TILE_SIZE,
 		 this.sourceX, this.sourceY, TILE_SIZE, TILE_SIZE);
-
-		/*if(this.type === GhostType.RED && this.mode === GhostMode.IN_BOX){
-			console.log("redX = " + this.x + " redY = " + this.y);
-		}*/
 
 		for(let i = this.shortestPath.length - 1; i > 0; --i){
 			strokeWeight(2);

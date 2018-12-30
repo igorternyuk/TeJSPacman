@@ -14,7 +14,6 @@ class Pacman extends Entity{
 		for(let i = 0; i < 4; ++i){
 			this.eatenGhostsMap.set(i, 0);
 		}
-		console.log(" px = " + this.x + " py = " + this.y);
 	}
 
 	isAlive(){
@@ -44,7 +43,7 @@ class Pacman extends Entity{
 		this.eatenGhostsMap.set(this.energisersEaten, eatenWithOneEnergizer + 1);
 		this.score += 200 * this.eatenGhostsMap.get(this.energisersEaten);
 		ghost.isEaten = true;
-		ghost.goToBox();
+		ghost.getEaten();
 	}
 
 	eatFruit(){
@@ -86,7 +85,6 @@ class Pacman extends Entity{
 	}
 
 	update(frameTime){
-		//console.log("Pacman update");
 		if(this.isMoving){
 			
 			super.update(frameTime);
@@ -108,7 +106,6 @@ class Pacman extends Entity{
 			}			
 		} else if(grid.getTileType(this.y, this.x) === TileType.FRUIT){
 			this.eatFruit();
-			//console.log("Pacman has eaten the fruit")
 			grid.setTileType(this.y, this.x, TileType.EMPTY);
 		} else if(grid.getTileType(this.y, this.x) === TileType.POWER_UP){
 			this.eatEnergizer();
@@ -116,9 +113,8 @@ class Pacman extends Entity{
 		} else if(grid.getTileType(this.y, this.x) === TileType.BONUS){
 			bonusWasSet = false;
 			grid.setTileType(this.y, this.x, TileType.EMPTY);
+			this.score += 100;
 		}
-
-		
 	}
 
 	render(){
@@ -128,6 +124,5 @@ class Pacman extends Entity{
 		imageMode(CENTER);
 		image(imgPacman, 0, 0, TILE_SIZE, TILE_SIZE, this.currentFrame * TILE_SIZE, 0, TILE_SIZE, TILE_SIZE);
 		pop();
-		//console.log("Drawing the pacman x = " + this.x + " y = " + this.y);
 	}
 }

@@ -15,7 +15,7 @@ const AllDirections = [ Direction.EAST, Direction.SOUTH, Direction.WEST, Directi
 
 const GhostType = Object.freeze({ RED: 0, ORANGE: 1, PINK: 2, BLUE: 3 });
 const AllGhostTypes = [ GhostType.RED, GhostType.ORANGE, GhostType.PINK, GhostType.BLUE ];
-const GhostMode = Object.freeze({ IN_BOX: 0, SCATTER: 1, SCARED: 2, CHASE: 3 });
+const GhostMode = Object.freeze({ IN_BOX: 0, SCATTER: 1, SCARED: 2, CHASE: 3, GOING_HOME: 4 });
 
 var imgBrick, imgPowerUp, imgFruit, imgPacman, imgGhosts;
 var grid;
@@ -31,6 +31,7 @@ var bonusWasSet = false;
 var bonusTimer = 0;
 var bonusLifeTime = 9;
 var bonusX = 0, bonusY = 0;
+var initTime = 0;
 
 function preload(){
 	imgBrick = loadImage("res/img/brick.bmp");
@@ -60,115 +61,26 @@ function setup() {
     gameState = GameState.PLAY;
 }
 
-function createGhosts(){
-	console.log("Ghost creating");
-	ghosts = [];
-	AllGhostTypes.forEach(type => {
-		let pos = grid.ghostPositions.get(type);
-		console.log("posX = " + pos.x + " posY = " + pos.y);
-		let rd = floor(random(AllDirections.length));
-		console.log("rd = " + rd);
-		let randDir = AllDirections[rd];
-		ghosts.push(new Ghost(pos.x, pos.y, randDir, type));	
-	});
-	ghosts.forEach(g => g.isEaten = true);
-	
-}
-
-function startNewGame(){
-	grid = new Grid();    
-    pacman = new Pacman(grid.pacmanRespawnX, grid.pacmanRespawnY, TILE_SIZE / 4, Direction.EAST);
-    fruitsTotal = grid.fruits;
-    pathfinder = new PathFinder();
-    createGhosts();
-    gameState = GameState.PLAY;
-}
-
-function togglePause(){
-	if(gameState === GameState.PLAY){
-		gameState = GameState.PAUSE;
-	} else if(gameState === GameState.PAUSE){
-		gameState = GameState.PLAY;
-	}
-}
-
-function checkGameStatus(){
-	if(!pacman.isAlive()){
-		gameState = GameState.PLAYER_LOST;
-	} else if(pacman.totalFruitEaten >= fruitsTotal){
-		gameState = GameState.PLAYER_WON;
-	}
-}
-
-function setRandomBonus(){
-	if(!bonusWasSet && pacman.totalFruitEaten > 0 && pacman.totalFruitEaten % 28 === 0){
-		let emptyTiles = [];
-		for(let row = 0; row < grid.rows; ++row){
-			for(let col = 0; col < grid.cols; ++col){
-				if(grid.getTileType(row, col) === TileType.EMPTY){
-					emptyTiles.push({ row: row, col: col});
-				}
-			}
-		}
-		let randIndex = floor(random(emptyTiles.length));
-		bonusX = emptyTiles[randIndex].col;
-		bonusY = emptyTiles[randIndex].row;
-		grid.setTileType(bonusY, bonusX, TileType.BONUS);
-		bonusWasSet = true;
-	}
-}
-
-function checkCollisions(){
-	let reset = false;
-	let pacmanNeighbours = grid.pathfindingGrid[pacman.y][pacman.x];
-	for(let i = 0; i < ghosts.length; ++i){
-		let currGhost = ghosts[i];
-		if(!currGhost.isEaten){
-			for(let j = 0; j < pacmanNeighbours.length; ++j){
-				if(currGhost.x === pacmanNeighbours[j].x
-					&& currGhost.y === pacmanNeighbours[j].y){
-						if(currGhost.mode === GhostMode.SCARED){
-							pacman.eatGhost(currGhost);
-						} else {
-							pacman.hit();
-							reset = true;
-							ghosts.forEach(g => g.goToBox());
-							return;
-						}		
-				}
-			}
-		}	
-	}
-	if(reset){
-		this.setPosition(grid.pacmanRespawnX, grid.pacmanRespawnY);
-		ghosts.forEach(g => g.goToBox());
-	}
-}
 //main loop
 function draw() {
-	
+	var frameTime = (millis() - initTime) / 1000;
 	// updating
-	
+	updatePhase(frameTime);	
+	///Rendering 
+	renderPhase(frameTime);	
+	initTime = millis();
+}
+
+function updatePhase(frameTime){
 	if(gameState === GameState.PLAY){
-		pacman.update(0.0625);
+		pacman.update(frameTime);
 		ghosts.forEach(g => {
-			g.update(0.0625);
+			g.update(frameTime);
 		});
 		updateBonus(frameTime);
 		checkCollisions();		
 		checkGameStatus();		
 	}
-	
-	///Rendering 
-
-	background(0);
-	grid.render();
-	ghosts.forEach(g => {
-		g.render();
-	});
-	pacman.render();
-	renderScore();
-	renderGameStatus();
 }
 
 function updateBonus(frameTime){
@@ -181,6 +93,17 @@ function updateBonus(frameTime){
 			bonusTimer = 0;
 		}	
 	}
+}
+
+function renderPhase(){
+	background(0);
+	grid.render();
+	ghosts.forEach(g => {
+		g.render();
+	});
+	pacman.render();
+	renderScore();
+	renderGameStatus();
 }
 
 function renderScore(){
@@ -206,12 +129,104 @@ function renderGameStatus(){
 	}
 }
 
+function createGhosts(){
+	console.log("Ghost creating");
+	ghosts = [];
+	AllGhostTypes.forEach(type => {
+		let pos = grid.ghostPositions.get(type);
+		console.log("posX = " + pos.x + " posY = " + pos.y);
+		let rd = floor(random(AllDirections.length));
+		console.log("rd = " + rd);
+		let randDir = AllDirections[rd];
+		ghosts.push(new Ghost(pos.x, pos.y, randDir, type));	
+	});
+	ghosts.forEach(g => g.isEaten = true);
+	
+}
+
+function setRandomBonus(){
+	if(!bonusWasSet && pacman.totalFruitEaten > 0 && pacman.totalFruitEaten % 28 === 0){
+		let emptyTiles = [];
+		for(let row = 0; row < grid.rows; ++row){
+			for(let col = 0; col < grid.cols; ++col){
+				if(!grid.pathfindingGrid[row][col].isWall){
+					emptyTiles.push({ row: row, col: col});
+				}
+			}
+		}
+		let randIndex = floor(random(emptyTiles.length));
+		bonusX = emptyTiles[randIndex].col;
+		bonusY = emptyTiles[randIndex].row;
+		grid.setTileType(bonusY, bonusX, TileType.BONUS);
+		bonusWasSet = true;
+	}
+}
+
+function checkCollisions(){
+	let reset = false;
+	let pacmanNeighbours = grid.pathfindingGrid[pacman.y][pacman.x].neighbours;
+
+	for(let i = 0; i < ghosts.length; ++i){
+		let currGhost = ghosts[i];
+		if(!currGhost.isEaten){
+			let collision = false;
+
+			for(let j = 0; j < pacmanNeighbours.length; ++j){
+				if(currGhost.x === pacmanNeighbours[j].x
+					&& currGhost.y === pacmanNeighbours[j].y){
+					collision = true;
+					break;		
+				}
+			}
+
+			if(collision){
+				if(currGhost.mode === GhostMode.SCARED){
+					pacman.eatGhost(currGhost);
+					return;
+				} else {
+					pacman.hit();
+					reset = true;
+					ghosts.forEach(g => g.goToBox());
+					return;
+				}		
+			}
+		}	
+	}
+	if(reset){
+		this.setPosition(grid.pacmanRespawnX, grid.pacmanRespawnY);
+		ghosts.forEach(g => g.goToBox());
+	}
+}
+
+function checkGameStatus(){
+	if(!pacman.isAlive()){
+		gameState = GameState.PLAYER_LOST;
+	} else if(pacman.totalFruitEaten >= fruitsTotal){
+		gameState = GameState.PLAYER_WON;
+	}
+}
+
+function startNewGame(){
+	grid = new Grid();    
+    pacman = new Pacman(grid.pacmanRespawnX, grid.pacmanRespawnY, TILE_SIZE / 4, Direction.EAST);
+    fruitsTotal = grid.fruits;
+    pathfinder = new PathFinder();
+    createGhosts();
+    gameState = GameState.PLAY;
+}
+
+function togglePause(){
+	if(gameState === GameState.PLAY){
+		gameState = GameState.PAUSE;
+	} else if(gameState === GameState.PAUSE){
+		gameState = GameState.PLAY;
+	}
+}
+
 function keyPressed(){
-	//console.log("Key pressed");
 	if(keyCode === RIGHT_ARROW){
 		pacman.setDirection(Direction.EAST)
 		pacman.setMoving(true);	
-		//console.log("Pacman moving to the right");
 	} else if(keyCode === LEFT_ARROW){
 		pacman.setDirection(Direction.WEST)
 		pacman.setMoving(true);
@@ -243,35 +258,7 @@ function keyReleased(){
 
 	if(key === ' ' ){
 		togglePause();
-	} else if(key === 'n'){
+	} else if(key === 'N'){
 		startNewGame();
 	}
 }
-
-/*
-var lastPrint;
-var i = 0;
-
-function setup() {
-  createCanvas(windowWidth, windowHeight); //set canvas to window width and window height
-  background("#dc3787"); //background of pink
-  lastPrint = millis() - 3000;
-}
-
-//print i every 3 seconds from 0 - 10
-
-function draw() {
-  var timeElapsed = millis() - lastPrint;
-  //console.log(timeElapsed);
-
-  if (timeElapsed > 3000) {
-    i++;
-    console.log(i);
-    lastPrint = millis();
-  }
-}
-
-function windowResized() { //P5 window resize function
-  resizeCanvas(windowWidth, windowHeight);
-}
-*/
