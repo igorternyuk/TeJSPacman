@@ -56,6 +56,7 @@ function setup() {
     grid = new Grid();    
     pacman = new Pacman(grid.pacmanRespawnX, grid.pacmanRespawnY, TILE_SIZE / 4, Direction.EAST);
     fruitsTotal = grid.fruits;
+    console.log("fruitsTotal = " + fruitsTotal);
     pathfinder = new PathFinder();
     createGhosts();
     gameState = GameState.PLAY;
@@ -111,7 +112,7 @@ function renderScore(){
 	fill(255,35,0);
 	noStroke();
 	let score = pacman.score;
-	text("Pacman score: " + score + " fruits: " + pacman.totalFruitEaten + " lives: " + pacman.lives, TILE_SIZE, 22 * TILE_SIZE);
+	text("Pacman score: " + score + " fruits: " + pacman.totalFruitEaten + "/" + fruitsTotal + " lives: " + pacman.lives, TILE_SIZE, 22 * TILE_SIZE);
 }
 
 function renderGameStatus(){
@@ -134,9 +135,7 @@ function createGhosts(){
 	ghosts = [];
 	AllGhostTypes.forEach(type => {
 		let pos = grid.ghostPositions.get(type);
-		console.log("posX = " + pos.x + " posY = " + pos.y);
 		let rd = floor(random(AllDirections.length));
-		console.log("rd = " + rd);
 		let randDir = AllDirections[rd];
 		ghosts.push(new Ghost(pos.x, pos.y, randDir, type));	
 	});
@@ -145,7 +144,7 @@ function createGhosts(){
 }
 
 function setRandomBonus(){
-	if(!bonusWasSet && pacman.totalFruitEaten > 0 && pacman.totalFruitEaten % 28 === 0){
+	if(!bonusWasSet && pacman.totalFruitEaten > 0 && pacman.totalFruitEaten % 25 === 0){
 		let emptyTiles = [];
 		for(let row = 0; row < grid.rows; ++row){
 			for(let col = 0; col < grid.cols; ++col){
@@ -157,6 +156,9 @@ function setRandomBonus(){
 		let randIndex = floor(random(emptyTiles.length));
 		bonusX = emptyTiles[randIndex].col;
 		bonusY = emptyTiles[randIndex].row;
+		if(grid.getTileType(bonusY, bonusX) === TileType.FRUIT){
+			--fruitsTotal;
+		}
 		grid.setTileType(bonusY, bonusX, TileType.BONUS);
 		bonusWasSet = true;
 	}

@@ -126,11 +126,12 @@ class Ghost extends Entity{
 					this.mode = GhostMode.CHASE;
 					this.shortestPath = [];
 					this.currPosOnPath = 0;
-				} else {
-					let nextPos = this.shortestPath[this.currPosOnPath];
-					this.setPosition(nextPos.x, nextPos.y);
+				} else {					
 					++this.currPosOnPath;
-					if(this.currPosOnPath >= this.shortestPath.length){
+					if(this.currPosOnPath < this.shortestPath.length){
+						let nextPos = this.shortestPath[this.currPosOnPath];
+						this.setPosition(nextPos.x, nextPos.y);
+					} else {
 						this.shortestPath = [];
 						this.currPosOnPath = 0;
 					}
@@ -153,10 +154,11 @@ class Ghost extends Entity{
 					console.log("Going back into the box");
 					this.goToBox();
 				} else {
-					let nextPos = this.shortestPath[this.currPosOnPath];
-					this.setPosition(nextPos.x, nextPos.y);
 					++this.currPosOnPath;
-					if(this.currPosOnPath >= this.shortestPath.length){
+					if(this.currPosOnPath < this.shortestPath.length){
+						let nextPos = this.shortestPath[this.currPosOnPath];
+						this.setPosition(nextPos.x, nextPos.y);
+					} else {
 						this.shortestPath = [];
 						this.currPosOnPath = 0;
 					}
@@ -178,6 +180,7 @@ class Ghost extends Entity{
 					console.log("Target reached. Switching to chasing");
 					this.mode = GhostMode.SCATTER;
 					this.shortestPath = [];
+					this.currPosOnPath = 0;
 				} else {
 					if(this.shortestPath.length > 0){
 						let nextPos = this.shortestPath[0];
