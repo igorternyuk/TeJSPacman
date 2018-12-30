@@ -1,6 +1,6 @@
 class PathFinder {
 	constructor(){
-		this.grid = cloneMatrix(grid.pathfindingGrid);
+		this.grid = grid.pathfindingGrid;
 		this.openSet = new PriorityQueue((a, b) => a.f < b.f );
 		this.closedSet = [];
 		this.optimalPath = [];
@@ -21,7 +21,9 @@ class PathFinder {
 		this.optimalPath = [];
 	}
 
-	calc(startX, startY, targetX, targetY){
+	calcShortestPath(startX, startY, targetX, targetY){
+
+		this.reset();
 
 		console.log("Pathfinder started with startX = " + startX + " startY" + startY + " targetX = " + targetX + " targetY = " + targetY);
 		
@@ -43,7 +45,7 @@ class PathFinder {
 			}
 
 			this.closedSet.push(current);
-			let neighbours = this.getNeighboursVonNeumann(current);
+			let neighbours = current.neighbours; //this.getNeighboursVonNeumann(current);
 			neighbours.forEach(neighbour => {
 				if(!this.closedSet.includes(neighbour)){
 					var tmpCost = current.cost + 1;
@@ -88,7 +90,7 @@ class PathFinder {
 		return optimalPath.reverse();
 	}
 
-	getNeighboursVonNeumann(spot){
+	/*getNeighboursVonNeumann(spot){
 		const dx = [ 1, 0, -1, 0 ];
 		const dy = [ 0, 1, 0, -1 ];
 		let neighbours = [];
@@ -107,7 +109,7 @@ class PathFinder {
 			}			
 		}
 		return neighbours;
-	}
+	}*/
 
 	heuristicFunc(begin, end){
 		return abs(begin.x - end.x) + abs(begin.y - end.y);

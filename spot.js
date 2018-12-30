@@ -7,6 +7,7 @@ class Spot{
 		this.cost = 0;		
 		this.heuristic = 0;	
 		this.prev = null;
+		this.neighbours = [];
 	}
 
 	render(color){

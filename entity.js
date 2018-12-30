@@ -33,18 +33,25 @@ class Entity{
 		this.moveTimer += frameTime;
 		if(this.moveTimer >= this.moveTime)
 		{
-			let newX = this.fixCol(this.x + this.direction.dx);
-			let newY = this.fixRow(this.y + this.direction.dy);
-
-			if(grid.isTilePassable(newY, newX)){
-				this.x = newX;
-				this.y = newY;
-			} else {
-				console.log("We've hit the wall");
-			}
-			
+			this.tryToMove();		
 			this.moveTimer = 0;	
 		}		
+	}
+
+	tryToMove(){
+		let newX = this.fixCol(this.x + this.direction.dx);
+		let newY = this.fixRow(this.y + this.direction.dy);
+
+		if(grid.isTilePassable(newY, newX)){
+			this.x = newX;
+			this.y = newY;
+			return true;
+		} 
+		return false;
+	}
+
+	distanceTo(other){
+		return Math.abs(this.x - other.x) + Math.abs(this.y - other.y);
 	}
 
 	render(){

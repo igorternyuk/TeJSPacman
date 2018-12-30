@@ -4,11 +4,26 @@ class Pacman extends Entity{
 		this.currentFrame = 0;
 		this.frameCount = 12;
 		this.score = 0;
+		this.totalFruitEaten = 0;
 		this.lives = 5;
 		this.energized = false;
+		this.energisersEaten = 0;
 		this.energizeTimer = 0;
 		this.energizerActionTime = 9;
+		this.eatenGhostsMap = new Map();
+		for(let i = 0; i < 4; ++i){
+			this.eatenGhostsMap.set(i, 0);
+		}
 		console.log(" px = " + this.x + " py = " + this.y);
+	}
+
+	isAlive(){
+		return this.lives > 0;
+	}
+
+	hit(){
+		--this.lives;
+		this.setPosition(grid.pacmanRespawnX, grid.pacmanRespawnY);
 	}
 
 	eatEnergizer(){
@@ -16,9 +31,24 @@ class Pacman extends Entity{
 		this.score += 50;
 		this.energizeTimer = 0;
 		this.energized = true;
+		++this.energisersEaten;
+		ghosts.forEach(g => {
+			if(g.mode !== GhostMode.IN_BOX){
+				g.scare(); 	
+			}
+		});
+	}
+
+	eatGhost(ghost){
+		let eatenWithOneEnergizer = this.eatenGhostsMap.get(this.energisersEaten);
+		this.eatenGhostsMap.set(this.energisersEaten, eatenWithOneEnergizer + 1);
+		this.score += 200 * this.eatenGhostsMap.get(this.energisersEaten);
+		ghost.isEaten = true;
+		ghost.goToBox();
 	}
 
 	eatFruit(){
+		++this.totalFruitEaten;
 		this.score += 10;
 		if(!this.energized){
 			this.decelerate();
@@ -58,6 +88,7 @@ class Pacman extends Entity{
 	update(frameTime){
 		//console.log("Pacman update");
 		if(this.isMoving){
+			
 			super.update(frameTime);
 			this.updateFrames();
 			this.energizeTimer += frameTime;
@@ -75,16 +106,19 @@ class Pacman extends Entity{
 			if(!this.energized){
 				this.setRegularSpeed();	
 			}			
-		} 
-		else if(grid.getTileType(this.y, this.x) === TileType.FRUIT){
+		} else if(grid.getTileType(this.y, this.x) === TileType.FRUIT){
 			this.eatFruit();
-			console.log("Pacman has eaten the fruit")
+			//console.log("Pacman has eaten the fruit")
 			grid.setTileType(this.y, this.x, TileType.EMPTY);
-		}
-		else if(grid.getTileType(this.y, this.x) === TileType.POWER_UP){
+		} else if(grid.getTileType(this.y, this.x) === TileType.POWER_UP){
 			this.eatEnergizer();
 			grid.setTileType(this.y, this.x, TileType.EMPTY);
+		} else if(grid.getTileType(this.y, this.x) === TileType.BONUS){
+			bonusWasSet = false;
+			grid.setTileType(this.y, this.x, TileType.EMPTY);
 		}
+
+		
 	}
 
 	render(){
