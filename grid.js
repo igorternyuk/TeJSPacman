@@ -9,6 +9,7 @@ class Grid{
 		this.fruits = 0;
 		this.ghostPositions = new Map();
 		this.ghostLeavingPoints = new Map();
+		this.ghostScatterTargets = new Map();
 		for(let row = 0; row < this.rows; ++row){
 			for(let col = 0; col < this.cols; ++col){
 				this.grid[row][col] = platform[row][col];
@@ -63,7 +64,15 @@ class Grid{
 		this.ghostLeavingPoints.set(GhostType.ORANGE, { x: 15, y: 8});
 		this.ghostLeavingPoints.set(GhostType.PINK, { x: 8, y: 13});
 		this.ghostLeavingPoints.set(GhostType.BLUE, { x: 15, y: 13});
-		
+
+		this.ghostScatterTargets.set(GhostType.RED, this.pathfindingGrid[1][1]);
+		this.ghostScatterTargets.set(GhostType.ORANGE, this.pathfindingGrid[1][23]);
+		this.ghostScatterTargets.set(GhostType.PINK, this.pathfindingGrid[19][23]);
+		this.ghostScatterTargets.set(GhostType.BLUE, this.pathfindingGrid[1][19]);
+
+		console.log("redX = " + this.ghostScatterTargets.get(GhostType.RED).x
+		 + " redY = " + this.ghostScatterTargets.get(GhostType.RED).y);
+
 		for(let row = 0; row < this.rows; ++row){
 			for(let col = 0; col < this.cols; ++col){
 				let curr = this.pathfindingGrid[row][col];

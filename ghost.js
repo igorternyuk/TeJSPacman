@@ -90,6 +90,7 @@ class Ghost extends Entity{
 				let leavingPoint = grid.ghostLeavingPoints.get(this.type);
 				this.setPosition(leavingPoint.x,leavingPoint.y);
 				this.mode = GhostMode.SCATTER;
+				this.shortestPath = [];
 			}
 
 		} else if(this.mode === GhostMode.SCARED){
@@ -107,15 +108,12 @@ class Ghost extends Entity{
 
 			if(this.moveTimer >= this.moveTime){
 				if(this.shortestPath.length === 0){
+					this.target = grid.ghostScatterTargets.get(this.type);
 					if(this.type === GhostType.RED){
-						this.target = grid.pathfindingGrid[1][1];
-					} else if(this.type === GhostType.ORANGE){
-						this.target = grid.pathfindingGrid[1][23];
-					} else if(this.type === GhostType.PINK){
-						this.target = grid.pathfindingGrid[19][23];
-					} else if(this.type === GhostType.BLUE){
-						this.target = grid.pathfindingGrid[19][1];
+						console.log("this.target.x = " + this.target.x + " this.target.y = " + this.target.y);
 					}
+
+
 					this.shortestPath =
 					 pathfinder.calcShortestPath(this.x, this.y, this.target.x, this.target.y);
 					 this.currPosOnPath = 0;
@@ -199,7 +197,7 @@ class Ghost extends Entity{
 		image(imgGhosts, this.x * TILE_SIZE, this.y * TILE_SIZE, TILE_SIZE, TILE_SIZE,
 		 this.sourceX, this.sourceY, TILE_SIZE, TILE_SIZE);
 
-		for(let i = this.shortestPath.length - 1; i > 0; --i){
+		/*for(let i = this.shortestPath.length - 1; i > 0; --i){
 			strokeWeight(2);
 			if(this.type === GhostType.RED){
 				stroke(255,0,0);
@@ -215,6 +213,6 @@ class Ghost extends Entity{
 			     this.shortestPath[i - 1].x * TILE_SIZE + TILE_SIZE / 2,
 			     this.shortestPath[i - 1].y * TILE_SIZE + TILE_SIZE / 2);
 			strokeWeight(1);
-		}
+		}*/
 	}
 }
